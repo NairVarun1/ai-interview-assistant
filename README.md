@@ -1,3 +1,23 @@
+# 📘 AI Interview Assistant - Project Documentation
+
+---
+
+## 📌 Overview
+
+The **AI Interview Assistant** automates interview attendance by reading Gmail invites, extracting Google Meet links, joining the calls via Selenium, and (in future steps) capturing and transcribing candidate audio using AI. It's designed to integrate with platforms like **PeopleHum** to support seamless virtual hiring.
+
+---
+
+## 🛠️ Tech Stack Summary
+
+| Layer         | Tools/Tech Used                                           |
+|---------------|-----------------------------------------------------------|
+| Automation    | Python, Selenium, imaplib, icalendar                      |
+| Audio         | MacOS BlackHole, PyAudio, OpenAI Whisper                  |
+| AI Features   | Whisper (Transcription), Future: Sentiment, Plagiarism   |
+| Scheduling    | APScheduler                                               |
+| Email Access  | Gmail IMAP                                                |
+| DevOps        | Git, GitHub                                               |
 
 ---
 
