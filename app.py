@@ -88,8 +88,10 @@ def disable_camera(driver, wait):
 
 # 5️⃣ Fetch New Meeting Emails
 def check_for_meeting_invites():
+    print("📧 Logging into Gmail...")
     mail = imaplib.IMAP4_SSL("imap.gmail.com")
     mail.login(EMAIL_ACCOUNT, PASSWORD)
+    print("📥 Fetching unread emails...")
     mail.select("inbox")
 
     status, data = mail.search(None, 'UNSEEN')
@@ -136,46 +138,64 @@ def join_meeting(link):
     try:
         wait = WebDriverWait(driver, 40)
 
-        # Disable mic
         print("🔇 Trying to disable mic...")
         mic_xpath = '//div[@aria-label="Turn off microphone"]'
         mic = wait.until(EC.element_to_be_clickable((By.XPATH, mic_xpath)))
         mic.click()
 
-        # Disable camera
         disable_camera(driver, wait)
         time.sleep(2)
 
-        # Click Join
         print("🟢 Looking for Join button...")
         join_now_xpath = '//span[text()="Ask to join"]'
         join_btn = wait.until(EC.element_to_be_clickable((By.XPATH, join_now_xpath)))
         join_btn.click()
         print("✅ Clicked Join.")
+        print("⏳ Waiting to confirm entry into the call...")
 
-        # Start recording
+        # ✅ Start recording AFTER joining
         stop_flag = {"stop": False}
+        audio_file_path = None
 
         def stop_check():
             return stop_flag["stop"]
 
-        audio_thread = threading.Thread(
-            target=lambda: record_meeting_audio(device_index=2, stop_flag=stop_check)
-        )
+        def record_audio():
+            nonlocal audio_file_path
+            audio_file_path = record_meeting_audio(device_index=2, stop_flag=stop_check)
+
+        audio_thread = threading.Thread(target=record_audio)
         audio_thread.start()
+        print("🎙️ Recording started. Monitoring meeting...")
 
-        print("🕒 Waiting until meeting ends...")
-        while "meet.google.com" in driver.current_url:
-            time.sleep(5)
+        # ✅ Poll until user exits Google Meet
+# ✅ Watch for "return to home" or similar post-call UI
+        print("🕵️ Monitoring meeting status...")
+        meeting_ended = False
+        while not meeting_ended:
+            try:
+        # Detect if the "Return to home screen" button appears
+                end_xpath = '//span[contains(text(), "Return to home screen") or contains(text(), "You’ve left the meeting")]'
+                driver.find_element(By.XPATH, end_xpath)
+                meeting_ended = True
+                print("📴 Meeting has ended!")
+            except:
+                time.sleep(5)
 
+
+        # ✅ Set stop_flag and wait for recording thread to finish
         stop_flag["stop"] = True
         audio_thread.join()
         print("🛑 Meeting ended, audio thread stopped.")
 
-        latest_audio = sorted(os.listdir("recordings"))[-1]
-        filepath = os.path.join("recordings", latest_audio)
+        if audio_file_path:
+            transcribe_audio(audio_file_path)
+            print("📄 Transcript saved. Exiting script now.")
+            exit(0)
+        else:
+            print("⚠️ No audio file recorded.")
+            exit(1)
 
-        transcribe_audio(filepath)
 
     except Exception as e:
         print("❌ Error during meeting:", e)
