@@ -15,7 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import time
 
 EMAIL_ACCOUNT = "vroon0048@gmail.com"
-PASSWORD = "Test@123"
+PASSWORD = "uiht updu xrfq uqta"
 
 scheduler = BackgroundScheduler()
 scheduler.start()
@@ -37,22 +37,32 @@ def manual_google_login():
 
 # 4️⃣ Extract Meeting Info from .ics
 def extract_meeting_details(msg):
+    # First, try .ics calendar attachments
     for part in msg.walk():
-        if part.get_content_type() == "text/calendar":
+        content_type = part.get_content_type()
+
+        if content_type == "text/calendar":
             calendar_data = part.get_payload(decode=True)
             cal = Calendar.from_ical(calendar_data)
 
             for component in cal.walk():
                 if component.name == "VEVENT":
                     start = component.get('dtstart').dt
-                    summary = component.get('summary')
                     description = str(component.get('description'))
-
                     match = re.search(r'https://meet\.google\.com/[a-zA-Z0-9\-]+', description)
                     link = match.group() if match else None
-
                     return start, link
+
+    # If no .ics data, fall back to parsing email body
+    for part in msg.walk():
+        if part.get_content_type() == "text/plain":
+            body = part.get_payload(decode=True).decode()
+            match = re.search(r'https://meet\.google\.com/[a-zA-Z0-9\-]+', body)
+            if match:
+                return datetime.now(), match.group()
+
     return None, None
+
 
 def disable_camera(driver, wait):
     print("📷 Trying to disable camera...")
@@ -89,19 +99,23 @@ def check_for_meeting_invites():
 
     status, data = mail.search(None, 'UNSEEN')
     email_ids = data[0].split()
+    scheduled_links = set()
 
     for e_id in email_ids:
         _, msg_data = mail.fetch(e_id, '(RFC822)')
         msg = email.message_from_bytes(msg_data[0][1])
         subject = msg["subject"]
 
-        if "Interview" in subject or "Meeting" in subject:
+    if subject and ("interview" in subject.lower() or "meeting" in subject.lower()):
             start, link = extract_meeting_details(msg)
-            if start and link:
+            if start and link and link not in scheduled_links:
                 print(f"📅 Scheduled: {subject} at {start} | Link: {link}")
                 scheduler.add_job(join_meeting, trigger='date', run_date=start, args=[link])
+                scheduled_links.add(link)
 
+    print("⚠️ No meeting link found in this email.")
     mail.logout()
+
 
 def join_meeting(link):
     print("🚀 Opening browser to join meeting:", link)
@@ -155,8 +169,10 @@ def join_meeting(link):
 
 
 if __name__ == "__main__":
+        check_for_meeting_invites()
+
     #manual_google_login()  # <- run once to login to account then the creds are stored in selenium cookie, then comment this out
-    while True:
+        while True:
         #join_meeting("https://meet.google.com/rzj-ccsg-bpx?pli=1")
-        join_meeting("https://meet.google.com/xxz-vucp-qps")
-        time.sleep(60)
+        #join_meeting("https://meet.google.com/xxz-vucp-qps")
+            time.sleep(60)
