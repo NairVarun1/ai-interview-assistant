@@ -189,13 +189,10 @@ def join_meeting(link):
         print("🛑 Meeting ended, audio thread stopped.")
 
         if audio_file_path:
-            transcribe_audio(audio_file_path)
-            print("📄 Transcript saved. Exiting script now.")
+            from utils.annotator import diarize_and_transcribe
+            diarize_and_transcribe(audio_file_path)
+            print("📄 Annotated transcript saved. Exiting script now.")
             exit(0)
-        else:
-            print("⚠️ No audio file recorded.")
-            exit(1)
-
 
     except Exception as e:
         print("❌ Error during meeting:", e)
