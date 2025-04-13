@@ -1,6 +1,5 @@
 # app.py
 
-# 1️⃣ Imports
 import os
 import re
 import time
@@ -18,6 +17,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
 from utils.transcriber import transcribe_audio
+from utils.annotator import diarize_and_transcribe
+from utils.analyseTranscript import analyse_transcript
 import threading
 
 EMAIL_ACCOUNT = "vroon0048@gmail.com"
@@ -152,6 +153,10 @@ def join_meeting(link):
         join_btn.click()
         print("✅ Clicked Join.")
         print("⏳ Waiting to confirm entry into the call...")
+        
+        meeting_ready_xpath = '//button[@aria-label="Meeting details"]'
+        wait.until(EC.presence_of_element_located((By.XPATH, meeting_ready_xpath)))
+        print("🎥 Successfully joined the call.")
 
         # ✅ Start recording AFTER joining
         stop_flag = {"stop": False}
@@ -168,13 +173,10 @@ def join_meeting(link):
         audio_thread.start()
         print("🎙️ Recording started. Monitoring meeting...")
 
-        # ✅ Poll until user exits Google Meet
-# ✅ Watch for "return to home" or similar post-call UI
         print("🕵️ Monitoring meeting status...")
         meeting_ended = False
         while not meeting_ended:
             try:
-        # Detect if the "Return to home screen" button appears
                 end_xpath = '//span[contains(text(), "Return to home screen") or contains(text(), "You’ve left the meeting")]'
                 driver.find_element(By.XPATH, end_xpath)
                 meeting_ended = True
@@ -189,10 +191,15 @@ def join_meeting(link):
         print("🛑 Meeting ended, audio thread stopped.")
 
         if audio_file_path:
-            from utils.annotator import diarize_and_transcribe
             diarize_and_transcribe(audio_file_path)
-            print("📄 Annotated transcript saved. Exiting script now.")
+            print("📄 Annotated transcript saved.")
+
+            transcript_path = os.path.splitext(audio_file_path)[0] + "_annotated.txt"
+            analyse_transcript(transcript_path)
+    
+            print("📊 Sentiment and Relevance analysis complete. Exiting script now.")
             exit(0)
+
 
     except Exception as e:
         print("❌ Error during meeting:", e)
