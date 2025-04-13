@@ -8,10 +8,10 @@ import threading
 # Configuration
 OUTPUT_DIR = "recordings"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-DEVICE_INDEX = 2  # Replace this with the BlackHole device index
+DEVICE_INDEX = 2
 SAMPLE_RATE = 44100
 CHANNELS = 2
-RECORD_SECONDS = 10  # Short test recording
+RECORD_SECONDS = 10
 
 # Globals
 recording = True
