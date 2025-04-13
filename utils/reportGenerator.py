@@ -7,14 +7,12 @@ from transformers import pipeline
 model = SentenceTransformer("all-MiniLM-L6-v2")
 sentiment_pipeline = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")
 
-# Map label to human-readable sentiment
 label_map = {
     "LABEL_0": "Negative",
     "LABEL_1": "Neutral",
     "LABEL_2": "Positive"
 }
 
-# Sentiment Function
 def get_sentiment_score(response):
     result = sentiment_pipeline(response)[0]
     label = result['label']
@@ -27,7 +25,6 @@ def get_sentiment_score(response):
     else:
         return 2, sentiment_label
 
-# Relevance Function with updated thresholds
 def get_relevance_score(answer, question):
     emb1 = model.encode(question, convert_to_tensor=True)
     emb2 = model.encode(answer, convert_to_tensor=True)
@@ -39,39 +36,56 @@ def get_relevance_score(answer, question):
     else:
         return 0, relevance
 
-# Final rating calculator
 def calculate_final_rating(sentiment_scores, relevance_scores):
     total_sentiment_score = sum(sentiment_scores)
     total_relevance_score = sum(relevance_scores)
     max_sentiment_score = len(sentiment_scores) * 3
-    max_relevance_score = len(relevance_scores) * 2  # Updated max relevance per new scale
+    max_relevance_score = len(relevance_scores) * 2
 
     sentiment_normalized = (total_sentiment_score / max_sentiment_score) * 5
     relevance_normalized = (total_relevance_score / max_relevance_score) * 5
     final_rating = sentiment_normalized + relevance_normalized
     return round(min(final_rating, 10), 1)
 
-# Analysis function
 def analyse_annotated_transcript(file_path):
     with open(file_path, "r") as f:
         lines = f.readlines()
 
-    questions, answers = [], []
+    speakers, questions, answers = {}, [], []
     current_question = ""
     current_answer = ""
+    current_speaker = ""
     results = []
 
     for line in lines:
         line = line.strip()
-        if line.startswith("Interviewer:"):
-            if current_question and current_answer:
-                questions.append(current_question)
-                answers.append(current_answer)
-                current_answer = ""
-            current_question = line.replace("Interviewer:", "").strip()
-        elif line.startswith("Candidate:"):
-            current_answer = line.replace("Candidate:", "").strip()
+        if line.startswith(":"):  # Detect speaker label at the beginning of the line
+            speaker_label = line.split(":", 1)[0].strip()
+            text = line.split(":", 1)[1].strip()
+            
+            # Assign question and answer based on who is speaking
+            if "Interviewer" in speaker_label:
+                if current_question and current_answer:
+                    questions.append(current_question)
+                    answers.append(current_answer)
+                    current_answer = ""
+                current_question = text
+                current_speaker = speaker_label
+            elif "Candidate" in speaker_label:
+                current_answer = text
+                current_speaker = speaker_label
+            else:
+                # Handle multiple speakers dynamically (store speaker names)
+                if speaker_label not in speakers:
+                    speakers[speaker_label] = 0
+                if current_question and current_answer:
+                    questions.append(current_question)
+                    answers.append(current_answer)
+                    current_answer = ""
+                current_question = text
+                current_speaker = speaker_label
 
+    # Add the last question-answer pair if it exists
     if current_question and current_answer:
         questions.append(current_question)
         answers.append(current_answer)
@@ -101,83 +115,12 @@ def analyse_annotated_transcript(file_path):
 
     return results, sentiment_summary, relevance_scores, sentiment_scores
 
-#This part of code should work for generic speaker labels other than Interviewer and Candidate
-'''
-def analyse_annotated_transcript(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-
-    speakers, questions, answers = {}, [], []
-    current_question = ""
-    current_answer = ""
-    current_speaker = ""
-    results = []
-
-    for line in lines:
-        line = line.strip()
-        
-        # Extract speaker label (e.g., "Speaker 1", "Interviewer", "Panelist")
-        if ":" in line:
-            speaker_label = line.split(":")[0].strip()
-            speech = line.split(":")[1].strip()
-
-            if "Interviewer" in speaker_label:
-                current_speaker = "Interviewer"
-            elif "Candidate" in speaker_label:
-                current_speaker = "Candidate"
-            else:
-                current_speaker = speaker_label  # Generic handling for any speaker
-
-            if current_speaker == "Interviewer":
-                if current_question and current_answer:
-                    questions.append(current_question)
-                    answers.append(current_answer)
-                    current_answer = ""
-                current_question = speech
-            elif current_speaker == "Candidate":
-                current_answer = speech
-
-    # Append the last question-answer pair
-    if current_question and current_answer:
-        questions.append(current_question)
-        answers.append(current_answer)
-
-    sentiment_summary = {"positive": 0, "neutral": 0, "negative": 0}
-    sentiment_scores = []
-    relevance_scores = []
-
-    for i in range(len(questions)):
-        q = questions[i]
-        a = answers[i]
-
-        sentiment_score, sentiment_label = get_sentiment_score(a)
-        sentiment_scores.append(sentiment_score)
-        sentiment_summary[sentiment_label.lower()] += 1
-
-        relevance_score, cos_sim = get_relevance_score(a, q)
-        relevance_scores.append(relevance_score)
-
-        results.append({
-            "question": q,
-            "answer": a,
-            "sentiment": sentiment_label,
-            "relevance": relevance_score,
-            "raw_similarity": cos_sim,
-            "speaker": current_speaker  # Add speaker label
-        })
-
-    return results, sentiment_summary, relevance_scores, sentiment_scores
-
-'''
-
-# Report generator with rejection if >=3 negative responses
-def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path):
+def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path, candidate_name="John Doe"):
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M")
     final_rating = calculate_final_rating(sentiment_scores, relevance_scores)
 
-    # ❌ Rejection condition: 3 or more negative answers
     if sentiment_summary["negative"] >= 3:
         verdict = "❌ NOT SELECTED (Too many negative answers)"
     else:
@@ -186,7 +129,7 @@ def generate_report(results, sentiment_summary, relevance_scores, sentiment_scor
     with open(output_path, "w") as f:
         f.write(f"Candidate Report – AI Interview Assistant\n")
         f.write(f"{'=' * 50}\n")
-        f.write(f"📅 Date: {date_str}\n🕒 Time: {time_str}\n👤\n")
+        f.write(f"📅 Date: {date_str}\n🕒 Time: {time_str}\n👤 Candidate: {candidate_name}\n")
         f.write(f"Questions Answered: {len(results)}\n\n")
 
         for i, item in enumerate(results):
@@ -205,10 +148,23 @@ def generate_report(results, sentiment_summary, relevance_scores, sentiment_scor
 
     print(f"✅ Report saved to: {output_path}")
 
-# Run script
+# Auto-detect latest annotated file
+def get_latest_transcript(folder="annotated"):
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(".txt")]
+    if not files:
+        raise FileNotFoundError("No annotated .txt files found in 'annotated/'")
+    latest_file = max(files, key=os.path.getmtime)
+    return latest_file
+
+# Main logic
 if __name__ == "__main__":
-    annotated_path = "annotated/sample_annotated.txt"
-    output_path = "test_reports/test_report.txt"
+    annotated_path = get_latest_transcript("annotated")
+    print(f"📄 Analysing file: {annotated_path}")
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_filename = f"report_{timestamp}.txt"
+    output_path = os.path.join("test_reports", report_filename)
     os.makedirs("test_reports", exist_ok=True)
+
     results, summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(annotated_path)
     generate_report(results, summary, relevance_scores, sentiment_scores, output_path)
