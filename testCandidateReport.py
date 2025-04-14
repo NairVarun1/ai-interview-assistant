@@ -207,6 +207,8 @@ def generate_report(results, sentiment_summary, relevance_scores, sentiment_scor
 
 # Run script
 if __name__ == "__main__":
+    annotated_path = "diarized_transcript.txt"
+    output_path = "test_reports/test_report1.txt"
     annotated_path = "annotated/sample_annotated.txt"
     output_path = "test_reports/test_report.txt"
     os.makedirs("test_reports", exist_ok=True)
