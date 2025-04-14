@@ -22,9 +22,10 @@ from utils.transcriber import transcribe_audio
 from utils.annotator import diarize_and_transcribe
 from utils.analyseTranscript import analyse_transcript
 import threading
-
-EMAIL_ACCOUNT = "vroon0048@gmail.com"
-PASSWORD = "uiht updu xrfq uqta"
+from dotenv import load_dotenv
+load_dotenv()
+EMAIL_ACCOUNT = os.getenv("EMAIL_ACCOUNT")
+PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 scheduler = BackgroundScheduler()
 scheduler.start()
