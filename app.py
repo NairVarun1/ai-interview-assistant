@@ -18,11 +18,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
 from utils.annotator import diarize_and_transcribe
 from utils.reportGenerator import analyse_annotated_transcript, generate_report
-
+from dotenv import load_dotenv
 import threading
 
-EMAIL_ACCOUNT = "vroon0048@gmail.com"
-PASSWORD = "uiht updu xrfq uqta"
+load_dotenv()
+EMAIL_ACCOUNT = os.getenv("EMAIL_ACCOUNT")
+PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 scheduler = BackgroundScheduler()
 scheduler.start()

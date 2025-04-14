@@ -2,6 +2,9 @@ import whisper
 from pyannote.audio import Pipeline
 import os
 import torch
+from dotenv import load_dotenv
+load_dotenv()
+hf_token = os.getenv("HUGGINGFACE_TOKEN")
 
 def diarize_and_transcribe(audio_path):
     """
@@ -30,7 +33,7 @@ def diarize_and_transcribe(audio_path):
     print("\nSetting up Pyannote for speaker diarization...")
     diarization_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization@2.1",
-        use_auth_token=os.environ.get("#")  # Make sure your Hugging Face token is set up correctly
+        use_auth_token=os.environ.get(hf_token)  # Make sure your Hugging Face token is set up correctly
     )
 
     # Run the diarization on your audio file
