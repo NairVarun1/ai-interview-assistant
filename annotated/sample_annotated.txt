@@ -2,6 +2,7 @@ Interviewer: Hi, can you tell me a bit about yourself?
 Candidate: Honestly, I don’t like these kinds of questions. I find them a waste of time.
 Interviewer: Why did you choose to apply for this role?
 Candidate: I needed a job, and this one happened to be hiring. I hate working actually.
+Candidate: I needed a job, and this one happened to be hiring.
 Interviewer: What are your key strengths?
 Candidate: I’m very good at adapting quickly, especially when under pressure. I also take initiative when needed.
 Interviewer: Can you describe a time when you solved a challenging problem?
@@ -17,4 +18,5 @@ Candidate: I regularly read tech blogs, watch YouTube tutorials, and take online
 Interviewer: What’s your approach to learning a new technology?
 Candidate: I dive into documentation and hands-on practice. Real-world projects help me learn faster.
 Interviewer: Do you have any questions for us?
+Candidate: No, I think I already know everything I need to.
 Candidate: No, I think I already know everything I need to.

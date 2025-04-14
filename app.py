@@ -18,7 +18,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
 from utils.annotator import diarize_and_transcribe
 from utils.reportGenerator import analyse_annotated_transcript, generate_report
-
+from utils.transcriber import transcribe_audio
+from utils.annotator import diarize_and_transcribe
+from utils.analyseTranscript import analyse_transcript
 import threading
 
 EMAIL_ACCOUNT = "vroon0048@gmail.com"
@@ -183,7 +185,6 @@ def join_meeting(link):
                 print("📴 Meeting has ended!")
             except:
                 time.sleep(5)
-
         # ✅ Set stop_flag and wait for recording thread to finish
         stop_flag["stop"] = True
         audio_thread.join()
@@ -208,6 +209,8 @@ def join_meeting(link):
             generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path)
 
             print(f"✅ Report saved to: {output_path}")
+            transcript_path = os.path.splitext(audio_file_path)[0] + "_annotated.txt"
+            analyse_transcript(transcript_path)
     
             print("📊 Sentiment and Relevance analysis complete. Exiting script now.")
             exit(0)
@@ -217,8 +220,6 @@ def join_meeting(link):
         print("❌ Error during meeting:", e)
     finally:
         driver.quit()
-
-
 
 if __name__ == "__main__":
     #manual_google_login()  # Run once for session
