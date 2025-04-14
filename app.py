@@ -16,9 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
-from utils.transcriber import transcribe_audio
 from utils.annotator import diarize_and_transcribe
-from utils.analyseTranscript import analyse_transcript
+from utils.reportGenerator import analyse_annotated_transcript, generate_report
+
 import threading
 
 EMAIL_ACCOUNT = "vroon0048@gmail.com"
@@ -184,7 +184,6 @@ def join_meeting(link):
             except:
                 time.sleep(5)
 
-
         # ✅ Set stop_flag and wait for recording thread to finish
         stop_flag["stop"] = True
         audio_thread.join()
@@ -194,8 +193,21 @@ def join_meeting(link):
             diarize_and_transcribe(audio_file_path)
             print("📄 Annotated transcript saved.")
 
+            # Path to the annotated transcript
             transcript_path = os.path.splitext(audio_file_path)[0] + "_annotated.txt"
-            analyse_transcript(transcript_path)
+            print(f"📄 Transcription completed, file saved at: {transcript_path}")
+
+            # Perform sentiment analysis and relevance scoring on the annotated transcript
+            results, sentiment_summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(transcript_path)
+
+            # Generate the report
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_filename = f"report_{timestamp}.txt"
+            output_path = os.path.join("test_reports", report_filename)
+            os.makedirs("test_reports", exist_ok=True)
+            generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path)
+
+            print(f"✅ Report saved to: {output_path}")
     
             print("📊 Sentiment and Relevance analysis complete. Exiting script now.")
             exit(0)
@@ -205,6 +217,7 @@ def join_meeting(link):
         print("❌ Error during meeting:", e)
     finally:
         driver.quit()
+
 
 
 if __name__ == "__main__":

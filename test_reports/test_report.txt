@@ -1,8 +1,8 @@
 Candidate Report – AI Interview Assistant
 ==================================================
-📅 Date: 2025-04-13
-🕒 Time: 12:41
-👤 Candidate: John Doe
+📅 Date: 2025-04-14
+🕒 Time: 10:29
+👤
 Questions Answered: 10
 
 1. ❓ Hi, can you tell me a bit about yourself?
@@ -11,9 +11,9 @@ Questions Answered: 10
    🎯 Relevance Score: 0 (Similarity: 0.09)
 
 2. ❓ Why did you choose to apply for this role?
-   💬 Candidate: I needed a job, and this one happened to be hiring.
-   😊 Sentiment: Neutral
-   🎯 Relevance Score: 1 (Similarity: 0.45)
+   💬 Candidate: I needed a job, and this one happened to be hiring. I hate working actually.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.37)
 
 3. ❓ What are your key strengths?
    💬 Candidate: I’m very good at adapting quickly, especially when under pressure. I also take initiative when needed.
@@ -58,9 +58,9 @@ Questions Answered: 10
 📊 Summary
 ----------------------------------------
 ✔️ Positive Responses: 3
-✔️ Neutral Responses: 4
-❌ Negative Responses: 3
+✔️ Neutral Responses: 3
+❌ Negative Responses: 4
 
 🏁 Verdict: ❌ NOT SELECTED (Too many negative answers)
 
-🏆 Final Rating: 4.3/10
+🏆 Final Rating: 3.9/10
