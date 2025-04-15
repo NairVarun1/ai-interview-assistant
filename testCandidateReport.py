@@ -9,7 +9,7 @@ from textstat import flesch_reading_ease
 # Load models
 model = SentenceTransformer("all-MiniLM-L6-v2")
 sentiment_pipeline = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="t5-base")
 
 # Map label to human-readable sentiment
 label_map = {
@@ -18,7 +18,6 @@ label_map = {
     "LABEL_2": "Positive"
 }
 
-# Sentiment Function
 def get_sentiment_score(response):
     result = sentiment_pipeline(response)[0]
     label = result['label']
@@ -26,7 +25,6 @@ def get_sentiment_score(response):
     score = {"Positive": 3, "Neutral": 2, "Negative": 1}[sentiment_label]
     return score, sentiment_label
 
-# Relevance Function
 def get_relevance_score(answer, question):
     emb1 = model.encode(question, convert_to_tensor=True)
     emb2 = model.encode(answer, convert_to_tensor=True)
@@ -38,7 +36,6 @@ def get_relevance_score(answer, question):
     else:
         return 0, relevance
 
-# Analyze transcript
 def analyse_annotated_transcript(file_path):
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -88,23 +85,27 @@ def analyse_annotated_transcript(file_path):
 
     return results, sentiment_summary, relevance_scores, sentiment_scores
 
-# Pros and Cons
 def extract_pros_and_cons(results):
     positive_answers = [r["answer"] for r in results if r["sentiment"] == "Positive"]
     negative_answers = [r["answer"] for r in results if r["sentiment"] == "Negative"]
 
-    pros_text = " ".join(positive_answers)
-    cons_text = " ".join(negative_answers)
+    pros = []
+    cons = []
 
-    pros_summary = summarizer(pros_text, max_length=100, min_length=30, do_sample=False)[0]['summary_text'] if pros_text else "None"
-    cons_summary = summarizer(cons_text, max_length=100, min_length=30, do_sample=False)[0]['summary_text'] if cons_text else "None"
+    for ans in positive_answers:
+        summary = summarizer("The candidate said: " + ans, max_length=60, min_length=20, do_sample=False)[0]['summary_text']
+        pros.append(f"• {summary}")
 
-    pros = [f"• {pros_summary}"]
-    cons = [f"• {cons_summary}"]
+    for ans in negative_answers:
+        summary = summarizer("The candidate said: " + ans, max_length=60, min_length=20, do_sample=False)[0]['summary_text']
+        cons.append(f"• {summary}")
 
-    return pros, cons
+    pros_text = " ".join(pros) if pros else "None"
+    cons_text = " ".join(cons) if cons else "None"
 
-# Communication Skills
+    combined_summary = summarizer(f"Pros: {pros_text} Cons: {cons_text}", max_length=100, min_length=30, do_sample=False)[0]['summary_text']
+    return pros, cons, combined_summary
+
 def evaluate_communication_skills(answers):
     clarity_scores = []
     confidence_scores = []
@@ -122,8 +123,7 @@ def evaluate_communication_skills(answers):
 
     return avg_clarity, avg_confidence
 
-# Text Report
-def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, output_path, avg_clarity, avg_confidence):
+def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, summary, output_path, avg_clarity, avg_confidence):
     now = datetime.now()
     with open(output_path, 'w') as f:
         f.write("Candidate Report – AI Interview Assistant\n")
@@ -170,10 +170,13 @@ def generate_report(results, sentiment_summary, relevance_scores, sentiment_scor
         for c in cons:
             f.write(f"{c}\n")
 
+        f.write("\n📝 Summary\n")
+        f.write(f"{'-'*40}\n")
+        f.write(f"{summary}\n")
+
     return verdict, final_rating
 
-# JSON Report
-def generate_json_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, output_path, avg_clarity, avg_confidence, verdict, final_rating):
+def generate_json_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, summary, output_path, avg_clarity, avg_confidence, verdict, final_rating):
     now = datetime.now()
     finalVerdict = True if verdict == "SELECTED" else False
 
@@ -191,7 +194,8 @@ def generate_json_report(results, sentiment_summary, relevance_scores, sentiment
                 "positive_responses": sentiment_summary['positive'],
                 "neutral_responses": sentiment_summary['neutral'],
                 "negative_responses": sentiment_summary['negative'],
-                "final_rating": final_rating
+                "final_rating": final_rating,
+                "summary_text": summary
             },
             "verdict": finalVerdict,
             "pros": pros,
@@ -205,16 +209,25 @@ def generate_json_report(results, sentiment_summary, relevance_scores, sentiment
 
     print(f"\n✅ JSON Report saved at: {output_path}")
 
-# Run
-if __name__ == "__main__":
-    annotated_path = "annotated/sample_annotated.txt"
-    text_output_path = "test_reports/test_report.txt"
-    json_output_path = "test_reports/test_report.json"
+def save_meeting_reports(transcript_path, meeting_link):
+    os.makedirs('recordings', exist_ok=True)
+    meeting_id = re.sub(r'\W+', '_', meeting_link)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-    os.makedirs("test_reports", exist_ok=True)
+    report_folder = "test_reports"
+    os.makedirs(report_folder, exist_ok=True)
 
-    results, summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(annotated_path)
-    pros, cons = extract_pros_and_cons(results)
-    avg_clarity, avg_confidence = evaluate_communication_skills([r["answer"] for r in results])
-    verdict, final_rating = generate_report(results, summary, relevance_scores, sentiment_scores, pros, cons, text_output_path, avg_clarity, avg_confidence)
-    generate_json_report(results, summary, relevance_scores, sentiment_scores, pros, cons, json_output_path, avg_clarity, avg_confidence, verdict, final_rating)
+    text_output_path = os.path.join(report_folder, f"{meeting_id}_{timestamp}_report.txt")
+    json_output_path = os.path.join(report_folder, f"{meeting_id}_{timestamp}_report.json")
+
+    results, sentiment_summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(transcript_path)
+    pros, cons, summary = extract_pros_and_cons(results)
+    avg_clarity, avg_confidence = evaluate_communication_skills([r['answer'] for r in results])
+
+    verdict, final_rating = generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, summary, text_output_path, avg_clarity, avg_confidence)
+    generate_json_report(results, sentiment_summary, relevance_scores, sentiment_scores, pros, cons, summary, json_output_path, avg_clarity, avg_confidence, verdict, final_rating)
+
+    print("Reports Generated Successfully !")
+
+if __name__=="__main__":
+    save_meeting_reports("recordings/meeting_audio_20250415_223508_annotated.txt","www.google.com")
