@@ -1,8 +1,8 @@
 Candidate Report – AI Interview Assistant
 ==================================================
 📅 Date: 2025-04-15
-🕒 Time: 11:19
-👤
+🕒 Time: 16:57
+
 Questions Answered: 10
 
 1. ❓ Hi, can you tell me a bit about yourself?
@@ -57,8 +57,8 @@ Questions Answered: 10
 
 🗣️ Communication Skill Analysis
 ----------------------------------------
-📖 Clarity Score (Flesch Reading Ease): 64.47 / 100
-💪 Confidence Score (Avg Sentiment Certainty): 0.72 / 1
+📖 Clarity Score : 64.47 / 100
+💪 Confidence Score : 0.72 / 1
 
 📊 Summary
 ----------------------------------------
@@ -67,8 +67,7 @@ Questions Answered: 10
 ❌ Negative Responses: 3
 
 
-🏁 Verdict: ❌ NOT SELECTED
-
+🏁 Verdict: NOT SELECTED
 🏆 Final Rating: 3.9/10
 
 💡 Pros
