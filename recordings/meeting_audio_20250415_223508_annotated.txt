@@ -1,0 +1,11 @@
+Interviewer: Hi, can you tell me about myself?
+Candidate: My name is Varun and I'm a finalier student at Jane University.
+Interviewer: Why did you choose to apply for this role?
+Candidate: I was really excited for this job and I think that I can do well here.
+Interviewer: What are your key strengths?
+Candidate: I am good at coding and I like playing football.
+Interviewer: Can you describe a time when you showed a challenging problem?
+Candidate: I have not faced a lot of challenges.
+Interviewer: How do you deal with tight deadlines?
+Candidate: I like to prioritize my work and work on the things that need my focus the most.
+Interviewer: Thank you. Welcome.

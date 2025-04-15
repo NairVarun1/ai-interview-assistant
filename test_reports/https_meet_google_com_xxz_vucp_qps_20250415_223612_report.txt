@@ -1,0 +1,54 @@
+Candidate Report – AI Interview Assistant
+==================================================
+📅 Date: 2025-04-15
+🕒 Time: 22:36
+
+Questions Answered: 5
+
+1. ❓ Hi, can you tell me about myself?
+   💬 Candidate: My name is Varun and I'm a finalier student at Jane University.
+   😊 Sentiment: Neutral
+   🎯 Relevance Score: 0 (Similarity: 0.25)
+
+2. ❓ Why did you choose to apply for this role?
+   💬 Candidate: I was really excited for this job and I think that I can do well here.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 1 (Similarity: 0.43)
+
+3. ❓ What are your key strengths?
+   💬 Candidate: I am good at coding and I like playing football.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 0 (Similarity: 0.32)
+
+4. ❓ Can you describe a time when you showed a challenging problem?
+   💬 Candidate: I have not faced a lot of challenges.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 1 (Similarity: 0.52)
+
+5. ❓ How do you deal with tight deadlines?
+   💬 Candidate: I like to prioritize my work and work on the things that need my focus the most.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 0 (Similarity: 0.26)
+
+🗣️ Communication Skill Analysis
+----------------------------------------
+📖 Clarity Score : 84.07 / 100
+💪 Confidence Score : 0.78 / 1
+
+📊 Summary
+----------------------------------------
+✔️ Positive Responses: 3
+✔️ Neutral Responses: 1
+❌ Negative Responses: 1
+
+
+🏁 Verdict: NOT SELECTED
+🏆 Final Rating: 3.1/10
+
+💡 Pros
+----------------------------------------
+• "I was really excited for this job and I think that I can do well here. I am good at coding and I like playing football," she said.
+
+⚠️ Cons
+----------------------------------------
+• "I have not faced a lot of challenges. I have been very lucky," he says. "I have been lucky to have had a good life so far"

@@ -1,105 +1,112 @@
-import whisper
-from pyannote.audio import Pipeline
 import os
-import torch
+import whisper
+import soundfile as sf
+import librosa
+import re
+import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
-hf = os.getenv("HUGGINGFACE_TOKEN")
 
-def diarize_and_transcribe(audio_path):
-    """
-    Transcribes and diarizes audio, then saves the annotated transcript.
-    :param audio_path: Path to the recorded audio file.
-    :return: None
-    """
+def remove_silence(audio_path, output_path, threshold_db=-60, frame_length=2048, hop_length=512):
+    """Removes silence from an audio file."""
+    try:
+        y, sr = librosa.load(audio_path, sr=16000)
+        intervals = librosa.effects.split(y, top_db=threshold_db, frame_length=frame_length, hop_length=hop_length)
 
-    # Step 1: Transcribe with Whisper
-    print("Loading Whisper model...")
-    whisper_model = whisper.load_model("base")  # You can use "tiny", "base", "small", etc.
-    
-    print("Transcribing with Whisper...")
-    whisper_result = whisper_model.transcribe(audio_path)
-
-    # Print and save the full transcript
-    print("\n--- FULL TRANSCRIPTION ---\n")
-    print(whisper_result["text"])
-
-    # Save the full transcript
-    full_transcript_path = f"{os.path.splitext(audio_path)[0]}_transcript.txt"
-    with open(full_transcript_path, "w") as f:
-        f.write(whisper_result["text"])
-
-    # Step 2: Set up Pyannote for speaker diarization
-    print("\nSetting up Pyannote for speaker diarization...")
-    diarization_pipeline = Pipeline.from_pretrained(
-        "pyannote/speaker-diarization@2.1",
-        use_auth_token=os.environ.get(hf)  # Make sure your Hugging Face token is set up correctly
-    )
-
-    # Run the diarization on your audio file
-    print("Running diarization...")
-    diarization_result = diarization_pipeline(audio_path)
-
-    # Step 3: Combine Whisper transcription with Pyannote diarization
-    print("\nCombining transcription with speaker diarization...")
-
-    # Process the Whisper segments
-    whisper_segments = [{"start": seg["start"], "end": seg["end"], "text": seg["text"]} for seg in whisper_result["segments"]]
-
-    # Create a list to store the diarized segments
-    diarized_segments = []
-
-    # Process the diarization results
-    for turn, _, speaker in diarization_result.itertracks(yield_label=True):
-        speaker_text = ""
-        for whisper_segment in whisper_segments:
-            if turn.start <= whisper_segment["end"] and turn.end >= whisper_segment["start"]:
-                overlap_start = max(turn.start, whisper_segment["start"])
-                overlap_end = min(turn.end, whisper_segment["end"])
-                if (overlap_end - overlap_start) > 0.5:  # At least 0.5 seconds overlap
-                    speaker_text += whisper_segment["text"] + " "
-        if speaker_text.strip():
-            diarized_segments.append({"speaker": speaker, "start": turn.start, "end": turn.end, "text": speaker_text.strip()})
-
-    # Merge consecutive segments from the same speaker
-    merged_segments = []
-    current_speaker = None
-    current_text = ""
-    current_start = 0
-    current_end = 0
-
-    for segment in diarized_segments:
-        if current_speaker != segment["speaker"]:
-            if current_speaker:
-                merged_segments.append({"speaker": current_speaker, "start": current_start, "end": current_end, "text": current_text.strip()})
-            current_speaker = segment["speaker"]
-            current_text = segment["text"]
-            current_start = segment["start"]
-            current_end = segment["end"]
+        if len(intervals) > 0:
+            trimmed_audio = np.concatenate([y[i[0]:i[1]] for i in intervals])
+            sf.write(output_path, trimmed_audio, sr)
         else:
-            current_text += " " + segment["text"]
-            current_end = segment["end"]
+            print("Warning: No non-silent intervals found. Writing original audio.")
+            sf.write(output_path, y, sr)
 
-    # Add the last segment
-    if current_speaker:
-        merged_segments.append({"speaker": current_speaker, "start": current_start, "end": current_end, "text": current_text.strip()})
+    except Exception as e:
+        print(f"Error removing silence: {e}")
+        return False
+    return True
 
-    # Create and save the diarized transcript without timestamps
-    print("\n--- DIARIZED TRANSCRIPTION ---\n")
-    diarized_transcript = ""
-    speaker_map = {0: "Interviewer", 1: "Candidate"}  # Mapping speaker IDs to Interviewer and Candidate
+def transcribe_with_whisper(audio_path):
+    """Transcribes an audio file using plain Whisper with timestamps."""
+    print("📝 Transcribing with Whisper...")
+    try:
+        model = whisper.load_model("tiny")  # Use "tiny" for CPU
+        result = model.transcribe(audio_path, word_timestamps=False)
+        return result["segments"]
+    except Exception as e:
+        print(f"Error during transcription: {e}")
+        return None
 
-    for segment in merged_segments:
-        speaker_label = speaker_map.get(segment['speaker'], f"Speaker {segment['speaker']}")  # Default label for unknown speakers
-        line = f"{speaker_label}: {segment['text']}"
-        print(line)
-        diarized_transcript += f"{line}\n"
+def annotate_speakers_interview(segments): #function name corrected
+    speaker = "Interviewer"  # Initial speaker
+    previous_speaker = None
+    annotated_text = ""
+    current_turn = ""
 
-    # Save diarized transcript
-    diarized_transcript_path = f"{os.path.splitext(audio_path)[0]}_diarized.txt"
-    with open(diarized_transcript_path, "w") as f:
-        f.write(diarized_transcript)
+    interviewer_keywords = re.compile(r"\b(question|tell me|explain|discuss)\b", re.IGNORECASE)
+    candidate_keywords = re.compile(r"\b(i|my|me)\b", re.IGNORECASE)
 
-    print(f"Diarized transcript saved to {diarized_transcript_path}")
+    duration_threshold = 2.0  # Initial threshold, will be adjusted.
+    word_count_threshold = 5  # Initial threshold, will be adjusted.
 
+    for segment in segments:
+        start = segment["start"]
+        end = segment["end"]
+        text = segment["text"].strip()
+        duration = end - start
+        word_count = len(text.split())
+
+        if interviewer_keywords.search(text):
+            speaker = "Interviewer"
+        elif candidate_keywords.search(text):
+            speaker = "Candidate"
+
+        if speaker == previous_speaker:
+            current_turn += " " + text
+        else:
+            if current_turn:
+                annotated_text += f"{previous_speaker}: {current_turn}\n"
+            current_turn = text
+
+        previous_speaker = speaker
+
+        # Dynamic Threshold Adjustment
+        duration_threshold = np.clip(duration * 0.8, 1.5, 5.0)  # Adjust based on current turn
+        word_count_threshold = np.clip(word_count * 0.6, 3, 10) # Adjust based on current turn.
+
+        if duration > duration_threshold and word_count > word_count_threshold:
+            speaker = "Candidate" if speaker == "Interviewer" else "Interviewer"
+
+    if current_turn:
+        annotated_text += f"{speaker}: {current_turn}\n"
+
+    return annotated_text
+
+def transcribe_audio(audio_path):
+    """Transcribes and annotates audio."""
+    print("✂️ Removing silence...")
+    temp_silent_removed = "silent_removed.wav"
+    if not remove_silence(audio_path, temp_silent_removed):
+        print("Silence removal failed. Continuing with original audio.")
+        temp_silent_removed = audio_path
+
+    segments = transcribe_with_whisper(temp_silent_removed)
+    if temp_silent_removed != audio_path:
+        os.remove(temp_silent_removed)
+
+    if segments:
+        annotated_text = annotate_speakers_interview(segments)
+
+        # Ensure 'annotated/' directory exists
+        os.makedirs("recordings", exist_ok=True)
+
+        # Create annotated file path in annotated/ directory
+        base_name = os.path.splitext(os.path.basename(audio_path))[0]
+        transcript_path = os.path.join("recordings", f"{base_name}_annotated.txt")
+
+        with open(transcript_path, "w") as f:
+            f.write(annotated_text)
+
+        print(f"\n✅ Annotated transcript saved to: {transcript_path}\n")
+        print(annotated_text)
+        return transcript_path

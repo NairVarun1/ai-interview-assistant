@@ -1,5 +1,3 @@
-# app.py
-
 import os
 import re
 import time
@@ -16,14 +14,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
-from utils.annotator import diarize_and_transcribe
-from utils.reportGenerator import analyse_annotated_transcript, generate_report
-from utils.transcriber import transcribe_audio
-from utils.annotator import diarize_and_transcribe
-from utils.analyseTranscript import analyse_transcript
+from utils.annotator import transcribe_audio
+from utils.reportGenerator import save_meeting_reports
 import threading
 from dotenv import load_dotenv
 load_dotenv()
+
 EMAIL_ACCOUNT = os.getenv("EMAIL_ACCOUNT")
 PASSWORD = os.getenv("EMAIL_PASSWORD")
 
@@ -192,38 +188,18 @@ def join_meeting(link):
         print("🛑 Meeting ended, audio thread stopped.")
 
         if audio_file_path:
-            diarize_and_transcribe(audio_file_path)
-            print("📄 Annotated transcript saved.")
-
-            # Path to the annotated transcript
-            transcript_path = os.path.splitext(audio_file_path)[0] + "_annotated.txt"
-            print(f"📄 Transcription completed, file saved at: {transcript_path}")
-
-            # Perform sentiment analysis and relevance scoring on the annotated transcript
-            results, sentiment_summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(transcript_path)
-
-            # Generate the report
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            report_filename = f"report_{timestamp}.txt"
-            output_path = os.path.join("test_reports", report_filename)
-            os.makedirs("test_reports", exist_ok=True)
-            generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path)
-
-            print(f"✅ Report saved to: {output_path}")
-            transcript_path = os.path.splitext(audio_file_path)[0] + "_annotated.txt"
-            analyse_transcript(transcript_path)
-    
-            print("📊 Sentiment and Relevance analysis complete. Exiting script now.")
-            exit(0)
-
-
+            transcript_path = transcribe_audio(audio_file_path)
+            verdict, final_rating = save_meeting_reports(transcript_path, link)
+            print("Verdict:" , verdict)
+            print("Rating:", final_rating)
     except Exception as e:
         print("❌ Error during meeting:", e)
     finally:
         driver.quit()
 
+
 if __name__ == "__main__":
-    #manual_google_login()  # Run once for session
+    # manual_google_login()  # Run once for session
     check_for_meeting_invites()
 
     while True:

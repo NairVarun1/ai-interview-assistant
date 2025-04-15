@@ -1,0 +1,61 @@
+{
+    "candidate_report": {
+        "date": "2025-04-15",
+        "time": "22:36",
+        "questions_answered": 5,
+        "results": [
+            {
+                "question": "Hi, can you tell me about myself?",
+                "answer": "My name is Varun and I'm a finalier student at Jane University.",
+                "sentiment": "Neutral",
+                "relevance": 0,
+                "raw_similarity": 0.251224160194397
+            },
+            {
+                "question": "Why did you choose to apply for this role?",
+                "answer": "I was really excited for this job and I think that I can do well here.",
+                "sentiment": "Positive",
+                "relevance": 1,
+                "raw_similarity": 0.42831748723983765
+            },
+            {
+                "question": "What are your key strengths?",
+                "answer": "I am good at coding and I like playing football.",
+                "sentiment": "Positive",
+                "relevance": 0,
+                "raw_similarity": 0.32155391573905945
+            },
+            {
+                "question": "Can you describe a time when you showed a challenging problem?",
+                "answer": "I have not faced a lot of challenges.",
+                "sentiment": "Negative",
+                "relevance": 1,
+                "raw_similarity": 0.5158235430717468
+            },
+            {
+                "question": "How do you deal with tight deadlines?",
+                "answer": "I like to prioritize my work and work on the things that need my focus the most.",
+                "sentiment": "Positive",
+                "relevance": 0,
+                "raw_similarity": 0.2583542466163635
+            }
+        ],
+        "communication_skill_analysis": {
+            "clarity_score": 84.07,
+            "confidence_score": 0.78
+        },
+        "summary": {
+            "positive_responses": 3,
+            "neutral_responses": 1,
+            "negative_responses": 1,
+            "final_rating": 3.1
+        },
+        "verdict": false,
+        "pros": [
+            "\u2022 \"I was really excited for this job and I think that I can do well here. I am good at coding and I like playing football,\" she said."
+        ],
+        "cons": [
+            "\u2022 \"I have not faced a lot of challenges. I have been very lucky,\" he says. \"I have been lucky to have had a good life so far\""
+        ]
+    }
+}
