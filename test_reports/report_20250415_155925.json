@@ -1,0 +1,85 @@
+{
+    "candidate_name": "John Doe",
+    "date": "2025-04-15",
+    "time": "15:59",
+    "questions_answered": 10,
+    "summary": {
+        "positive": 3,
+        "neutral": 3,
+        "negative": 4
+    },
+    "final_rating": 3.9,
+    "verdict": "\u274c NOT SELECTED (Too many negative answers)",
+    "responses": [
+        {
+            "question": "Hi, can you tell me a bit about yourself?",
+            "answer": "Honestly, I don\u2019t like these kinds of questions. I find them a waste of time.",
+            "sentiment": "Negative",
+            "relevance": 0,
+            "raw_similarity": 0.09380300343036652
+        },
+        {
+            "question": "Why did you choose to apply for this role?",
+            "answer": "I needed a job, and this one happened to be hiring. I hate working actually.",
+            "sentiment": "Negative",
+            "relevance": 0,
+            "raw_similarity": 0.3685057461261749
+        },
+        {
+            "question": "What are your key strengths?",
+            "answer": "I\u2019m very good at adapting quickly, especially when under pressure. I also take initiative when needed.",
+            "sentiment": "Positive",
+            "relevance": 1,
+            "raw_similarity": 0.4598735570907593
+        },
+        {
+            "question": "Can you describe a time when you solved a challenging problem?",
+            "answer": "Sure. In my last project, the system would crash frequently. I analyzed the logs, identified a memory leak, and patched it before release.",
+            "sentiment": "Negative",
+            "relevance": 0,
+            "raw_similarity": 0.19914460182189941
+        },
+        {
+            "question": "How do you deal with tight deadlines?",
+            "answer": "I break the work into smaller parts and prioritize. I also communicate delays early to the team.",
+            "sentiment": "Neutral",
+            "relevance": 1,
+            "raw_similarity": 0.47560957074165344
+        },
+        {
+            "question": "Tell me about a time you failed and what you learned from it.",
+            "answer": "Once I misjudged a timeline and caused a feature to launch late. Since then, I\u2019ve been more realistic with estimations and added buffer time.",
+            "sentiment": "Neutral",
+            "relevance": 0,
+            "raw_similarity": 0.22193360328674316
+        },
+        {
+            "question": "What is your experience working in a team?",
+            "answer": "I don\u2019t really enjoy working with others \u2014 too many opinions. I prefer working alone.",
+            "sentiment": "Negative",
+            "relevance": 0,
+            "raw_similarity": 0.33207693696022034
+        },
+        {
+            "question": "How do you stay updated with the latest industry trends?",
+            "answer": "I regularly read tech blogs, watch YouTube tutorials, and take online courses.",
+            "sentiment": "Positive",
+            "relevance": 0,
+            "raw_similarity": 0.2631402015686035
+        },
+        {
+            "question": "What\u2019s your approach to learning a new technology?",
+            "answer": "I dive into documentation and hands-on practice. Real-world projects help me learn faster.",
+            "sentiment": "Positive",
+            "relevance": 1,
+            "raw_similarity": 0.5108654499053955
+        },
+        {
+            "question": "Do you have any questions for us?",
+            "answer": "No, I think I already know everything I need to.",
+            "sentiment": "Neutral",
+            "relevance": 0,
+            "raw_similarity": 0.3271353244781494
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+Interviewer: Can you tell me about your self?
+Candidate: Honestly, I do not like these kind of questions.
+Interviewer: Why did you choose to apply for this role? 
+Candidate: I don't like this role actually. You can give me any other role. I do not mind.
+Interviewer: What are your key strengths?
+Candidate: I love working on the gym. Technically I am not good at anything.
+Interviewer: Thank you.

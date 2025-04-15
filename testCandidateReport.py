@@ -1,24 +1,29 @@
 import os
+import json
 from datetime import datetime
 from sentence_transformers import SentenceTransformer, util
-from transformers import pipeline
+from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 
 # Load models
-model = SentenceTransformer("all-MiniLM-L6-v2")
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 sentiment_pipeline = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")
 
-# Map label to human-readable sentiment
+# LLM for summary (e.g., Mistral-7B-Instruct or TinyLlama for faster inference)
+llm_model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+tokenizer = AutoTokenizer.from_pretrained(llm_model)
+model = AutoModelForCausalLM.from_pretrained(llm_model, device_map="auto", torch_dtype="auto")
+
+
 label_map = {
     "LABEL_0": "Negative",
     "LABEL_1": "Neutral",
     "LABEL_2": "Positive"
 }
 
-# Sentiment Function
 def get_sentiment_score(response):
     result = sentiment_pipeline(response)[0]
-    label = result['label']
-    sentiment_label = label_map[label]
+    label = result['label'].upper()
+    sentiment_label = label_map.get(label, "Neutral")
 
     if sentiment_label == "Positive":
         return 3, sentiment_label
@@ -27,166 +32,107 @@ def get_sentiment_score(response):
     else:
         return 2, sentiment_label
 
-# Relevance Function with updated thresholds
-def get_relevance_score(answer, question):
-    emb1 = model.encode(question, convert_to_tensor=True)
-    emb2 = model.encode(answer, convert_to_tensor=True)
-    relevance = float(util.pytorch_cos_sim(emb1, emb2).item())
-    if relevance > 0.7:
-        return 2, relevance
-    elif 0.4 <= relevance <= 0.7:
-        return 1, relevance
-    else:
-        return 0, relevance
+def get_relevance_scores_batch(questions, answers):
+    q_embeddings = embedding_model.encode(questions, convert_to_tensor=True)
+    a_embeddings = embedding_model.encode(answers, convert_to_tensor=True)
 
-# Final rating calculator
-def calculate_final_rating(sentiment_scores, relevance_scores):
-    total_sentiment_score = sum(sentiment_scores)
-    total_relevance_score = sum(relevance_scores)
-    max_sentiment_score = len(sentiment_scores) * 3
-    max_relevance_score = len(relevance_scores) * 2  # Updated max relevance per new scale
+    relevance_scores = []
+    similarities = []
 
-    sentiment_normalized = (total_sentiment_score / max_sentiment_score) * 5
-    relevance_normalized = (total_relevance_score / max_relevance_score) * 5
-    final_rating = sentiment_normalized + relevance_normalized
-    return round(min(final_rating, 10), 1)
+    for q_emb, a_emb in zip(q_embeddings, a_embeddings):
+        relevance = float(util.pytorch_cos_sim(q_emb, a_emb).item())
+        similarities.append(relevance)
+        if relevance > 0.7:
+            relevance_scores.append(2)
+        elif 0.4 <= relevance <= 0.7:
+            relevance_scores.append(1)
+        else:
+            relevance_scores.append(0)
 
-# Analysis function
+    return relevance_scores, similarities
+
+def generate_llm_summary(results):
+    chat_prompt = "You are an AI interview assistant. Based on the following transcript of Q&A, provide a summary of the candidate's performance and whether they should be selected or not.\n\n"
+    for i, item in enumerate(results):
+        chat_prompt += f"Q{i+1}: {item['question']}\nA{i+1}: {item['answer']}\nSentiment: {item['sentiment']}, Relevance Score: {item['relevance']}, Similarity: {item['raw_similarity']:.2f}\n\n"
+
+    chat_prompt += "Now provide a summary and your final recommendation (Selected / Not Selected) with reasoning.\n"
+
+    inputs = tokenizer(chat_prompt, return_tensors="pt", truncation=True, max_length=4096).to(model.device)
+    output = model.generate(**inputs, max_new_tokens=300, temperature=0.7, do_sample=True)
+    summary = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    # Extract only the generated part after prompt
+    generated_text = summary[len(chat_prompt):].strip()
+    return generated_text
+
 def analyse_annotated_transcript(file_path):
     with open(file_path, "r") as f:
         lines = f.readlines()
 
     questions, answers = [], []
-    current_question = ""
-    current_answer = ""
-    results = []
+    current_question, current_answer = "", ""
 
     for line in lines:
         line = line.strip()
-        if line.startswith("Interviewer:"):
+        if ":" not in line or not line.split(":", 1)[1].strip():
+            continue
+
+        speaker_label, text = line.split(":", 1)
+        speaker_label, text = speaker_label.strip(), text.strip()
+
+        if "Interviewer" in speaker_label:
             if current_question and current_answer:
                 questions.append(current_question)
                 answers.append(current_answer)
                 current_answer = ""
-            current_question = line.replace("Interviewer:", "").strip()
-        elif line.startswith("Candidate:"):
-            current_answer = line.replace("Candidate:", "").strip()
+            current_question = text
+        elif "Candidate" in speaker_label:
+            current_answer = text
 
     if current_question and current_answer:
         questions.append(current_question)
         answers.append(current_answer)
 
+    if not questions or not answers:
+        print("⚠️ No valid Q&A pairs found in transcript.")
+        return [], {}, [], []
+
     sentiment_summary = {"positive": 0, "neutral": 0, "negative": 0}
     sentiment_scores = []
-    relevance_scores = []
-
-    for i in range(len(questions)):
-        q = questions[i]
-        a = answers[i]
-
-        sentiment_score, sentiment_label = get_sentiment_score(a)
-        sentiment_scores.append(sentiment_score)
-        sentiment_summary[sentiment_label.lower()] += 1
-
-        relevance_score, cos_sim = get_relevance_score(a, q)
-        relevance_scores.append(relevance_score)
-
-        results.append({
-            "question": q,
-            "answer": a,
-            "sentiment": sentiment_label,
-            "relevance": relevance_score,
-            "raw_similarity": cos_sim
-        })
-
-    return results, sentiment_summary, relevance_scores, sentiment_scores
-
-#This part of code should work for generic speaker labels other than Interviewer and Candidate
-'''
-def analyse_annotated_transcript(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-
-    speakers, questions, answers = {}, [], []
-    current_question = ""
-    current_answer = ""
-    current_speaker = ""
     results = []
 
-    for line in lines:
-        line = line.strip()
-        
-        # Extract speaker label (e.g., "Speaker 1", "Interviewer", "Panelist")
-        if ":" in line:
-            speaker_label = line.split(":")[0].strip()
-            speech = line.split(":")[1].strip()
-
-            if "Interviewer" in speaker_label:
-                current_speaker = "Interviewer"
-            elif "Candidate" in speaker_label:
-                current_speaker = "Candidate"
-            else:
-                current_speaker = speaker_label  # Generic handling for any speaker
-
-            if current_speaker == "Interviewer":
-                if current_question and current_answer:
-                    questions.append(current_question)
-                    answers.append(current_answer)
-                    current_answer = ""
-                current_question = speech
-            elif current_speaker == "Candidate":
-                current_answer = speech
-
-    # Append the last question-answer pair
-    if current_question and current_answer:
-        questions.append(current_question)
-        answers.append(current_answer)
-
-    sentiment_summary = {"positive": 0, "neutral": 0, "negative": 0}
-    sentiment_scores = []
-    relevance_scores = []
-
-    for i in range(len(questions)):
-        q = questions[i]
-        a = answers[i]
-
+    for a in answers:
         sentiment_score, sentiment_label = get_sentiment_score(a)
         sentiment_scores.append(sentiment_score)
         sentiment_summary[sentiment_label.lower()] += 1
 
-        relevance_score, cos_sim = get_relevance_score(a, q)
-        relevance_scores.append(relevance_score)
+    relevance_scores, similarities = get_relevance_scores_batch(questions, answers)
 
+    for i in range(len(questions)):
         results.append({
-            "question": q,
-            "answer": a,
-            "sentiment": sentiment_label,
-            "relevance": relevance_score,
-            "raw_similarity": cos_sim,
-            "speaker": current_speaker  # Add speaker label
+            "question": questions[i],
+            "answer": answers[i],
+            "sentiment": ["Negative", "Neutral", "Positive"][sentiment_scores[i]-1],
+            "relevance": relevance_scores[i],
+            "raw_similarity": similarities[i]
         })
 
     return results, sentiment_summary, relevance_scores, sentiment_scores
 
-'''
-
-# Report generator with rejection if >=3 negative responses
-def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path):
+def generate_report(results, sentiment_summary, relevance_scores, sentiment_scores, output_path, candidate_name="John Doe"):
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M")
-    final_rating = calculate_final_rating(sentiment_scores, relevance_scores)
+    final_rating = round((sum(sentiment_scores) / (len(sentiment_scores) * 3) * 5 if sentiment_scores else 0) +
+                         (sum(relevance_scores) / (len(relevance_scores) * 2) * 5 if relevance_scores else 0), 1)
 
-    # ❌ Rejection condition: 3 or more negative answers
-    if sentiment_summary["negative"] >= 3:
-        verdict = "❌ NOT SELECTED (Too many negative answers)"
-    else:
-        verdict = "✅ SELECTED" if final_rating > 5 else "❌ NOT SELECTED"
+    summary_verdict = generate_llm_summary(results)
 
     with open(output_path, "w") as f:
         f.write(f"Candidate Report – AI Interview Assistant\n")
         f.write(f"{'=' * 50}\n")
-        f.write(f"📅 Date: {date_str}\n🕒 Time: {time_str}\n👤\n")
+        f.write(f"📅 Date: {date_str}\n🕒 Time: {time_str}\n👤 Candidate: {candidate_name}\n")
         f.write(f"Questions Answered: {len(results)}\n\n")
 
         for i, item in enumerate(results):
@@ -197,18 +143,45 @@ def generate_report(results, sentiment_summary, relevance_scores, sentiment_scor
 
         f.write("📊 Summary\n")
         f.write(f"{'-'*40}\n")
-        f.write(f"✔️ Positive Responses: {sentiment_summary['positive']}\n")
-        f.write(f"✔️ Neutral Responses: {sentiment_summary['neutral']}\n")
-        f.write(f"❌ Negative Responses: {sentiment_summary['negative']}\n")
-        f.write(f"\n🏁 Verdict: {verdict}\n")
+        f.write(f"✔️ Positive Responses: {sentiment_summary.get('positive', 0)}\n")
+        f.write(f"✔️ Neutral Responses: {sentiment_summary.get('neutral', 0)}\n")
+        f.write(f"❌ Negative Responses: {sentiment_summary.get('negative', 0)}\n")
         f.write(f"\n🏆 Final Rating: {final_rating}/10\n")
+        f.write(f"\n🧠 LLM Summary & Verdict:\n{summary_verdict}\n")
 
     print(f"✅ Report saved to: {output_path}")
 
-# Run script
+    json_path = output_path.replace(".txt", ".json")
+    with open(json_path, "w") as jf:
+        json.dump({
+            "candidate_name": candidate_name,
+            "date": date_str,
+            "time": time_str,
+            "questions_answered": len(results),
+            "summary": sentiment_summary,
+            "final_rating": final_rating,
+            "responses": results,
+            "llm_summary": summary_verdict
+        }, jf, indent=4)
+    print(f"📁 JSON report saved to: {json_path}")
+
+def get_latest_transcript(folder="annotated"):
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(".txt")]
+    if not files:
+        raise FileNotFoundError("No annotated .txt files found in 'annotated/'")
+    return max(files, key=os.path.getmtime)
+
 if __name__ == "__main__":
-    annotated_path = "diarized_transcript.txt"
-    output_path = "test_reports/test_report1.txt"
+    transcript_path = get_latest_transcript("annotated")
+    print(f"📄 Analysing file: {transcript_path}")
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = f"report_{timestamp}.txt"
+    output_path = os.path.join("test_reports", output_file)
     os.makedirs("test_reports", exist_ok=True)
-    results, summary, relevance_scores, sentiment_scores = analyse_annotated_transcript(annotated_path)
-    generate_report(results, summary, relevance_scores, sentiment_scores, output_path)
+
+    results, summary, rel_scores, sent_scores = analyse_annotated_transcript(transcript_path)
+    if results:
+        generate_report(results, summary, rel_scores, sent_scores, output_path)
+    else:
+        print("❌ Report generation skipped due to no valid responses.")

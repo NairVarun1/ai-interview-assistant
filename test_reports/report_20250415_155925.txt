@@ -1,0 +1,66 @@
+Candidate Report – AI Interview Assistant
+==================================================
+📅 Date: 2025-04-15
+🕒 Time: 15:59
+👤 Candidate: John Doe
+Questions Answered: 10
+
+1. ❓ Hi, can you tell me a bit about yourself?
+   💬 Candidate: Honestly, I don’t like these kinds of questions. I find them a waste of time.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.09)
+
+2. ❓ Why did you choose to apply for this role?
+   💬 Candidate: I needed a job, and this one happened to be hiring. I hate working actually.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.37)
+
+3. ❓ What are your key strengths?
+   💬 Candidate: I’m very good at adapting quickly, especially when under pressure. I also take initiative when needed.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 1 (Similarity: 0.46)
+
+4. ❓ Can you describe a time when you solved a challenging problem?
+   💬 Candidate: Sure. In my last project, the system would crash frequently. I analyzed the logs, identified a memory leak, and patched it before release.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.20)
+
+5. ❓ How do you deal with tight deadlines?
+   💬 Candidate: I break the work into smaller parts and prioritize. I also communicate delays early to the team.
+   😊 Sentiment: Neutral
+   🎯 Relevance Score: 1 (Similarity: 0.48)
+
+6. ❓ Tell me about a time you failed and what you learned from it.
+   💬 Candidate: Once I misjudged a timeline and caused a feature to launch late. Since then, I’ve been more realistic with estimations and added buffer time.
+   😊 Sentiment: Neutral
+   🎯 Relevance Score: 0 (Similarity: 0.22)
+
+7. ❓ What is your experience working in a team?
+   💬 Candidate: I don’t really enjoy working with others — too many opinions. I prefer working alone.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.33)
+
+8. ❓ How do you stay updated with the latest industry trends?
+   💬 Candidate: I regularly read tech blogs, watch YouTube tutorials, and take online courses.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 0 (Similarity: 0.26)
+
+9. ❓ What’s your approach to learning a new technology?
+   💬 Candidate: I dive into documentation and hands-on practice. Real-world projects help me learn faster.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 1 (Similarity: 0.51)
+
+10. ❓ Do you have any questions for us?
+   💬 Candidate: No, I think I already know everything I need to.
+   😊 Sentiment: Neutral
+   🎯 Relevance Score: 0 (Similarity: 0.33)
+
+📊 Summary
+----------------------------------------
+✔️ Positive Responses: 3
+✔️ Neutral Responses: 3
+❌ Negative Responses: 4
+
+🏁 Verdict: ❌ NOT SELECTED (Too many negative answers)
+
+🏆 Final Rating: 3.9/10

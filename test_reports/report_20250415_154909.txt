@@ -1,0 +1,31 @@
+Candidate Report – AI Interview Assistant
+==================================================
+📅 Date: 2025-04-15
+🕒 Time: 15:49
+👤 Candidate: John Doe
+Questions Answered: 3
+
+1. ❓ Can you tell me about your self?
+   💬 Candidate: Honestly, I do not like these kind of questions.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.16)
+
+2. ❓ Why did you choose to apply for this role?
+   💬 Candidate: I don't like this role actually. You can give me any other role. I do not mind.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 1 (Similarity: 0.53)
+
+3. ❓ What are your key strengths?
+   💬 Candidate: I love working on the gym. Technically I am not good at anything.
+   😊 Sentiment: Positive
+   🎯 Relevance Score: 0 (Similarity: 0.35)
+
+📊 Summary
+----------------------------------------
+✔️ Positive Responses: 1
+✔️ Neutral Responses: 0
+❌ Negative Responses: 2
+
+🏁 Verdict: ❌ NOT SELECTED
+
+🏆 Final Rating: 3.6/10

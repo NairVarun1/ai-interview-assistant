@@ -1,0 +1,42 @@
+{
+    "date": "2025-04-15",
+    "time": "15:17",
+    "questions_answered": 4,
+    "sentiment_summary": {
+        "positive": 2,
+        "neutral": 0,
+        "negative": 2
+    },
+    "final_rating": 4.6,
+    "verdict": "\u274c NOT SELECTED",
+    "qa_analysis": [
+        {
+            "question": "Can you tell me about your self?",
+            "answer": "Honestly, I do not like these kind of questions.",
+            "sentiment": "Negative",
+            "relevance": 0,
+            "raw_similarity": 0.1564704030752182
+        },
+        {
+            "question": "Why did you choose to apply for this role?",
+            "answer": "I don't like this role actually. You can give me any other role. I do not mind.",
+            "sentiment": "Negative",
+            "relevance": 1,
+            "raw_similarity": 0.5306459665298462
+        },
+        {
+            "question": "What are your key strengths?",
+            "answer": "I love working on the gym. Technically I am not good at anything.",
+            "sentiment": "Positive",
+            "relevance": 0,
+            "raw_similarity": 0.35265862941741943
+        },
+        {
+            "question": "Thank you.",
+            "answer": "Welcome.",
+            "sentiment": "Positive",
+            "relevance": 1,
+            "raw_similarity": 0.6236996054649353
+        }
+    ]
+}

@@ -1,51 +1,31 @@
 Candidate Report – AI Interview Assistant
 ==================================================
-📅 Date: 2025-04-14
-🕒 Time: 18:43
+📅 Date: 2025-04-15
+🕒 Time: 15:39
 👤
-Questions Answered: 7
+Questions Answered: 3
 
-1. ❓ Hello and welcome to our podcast today. We're joined by Dr. Smith, an expert in artificial intelligence.  Thank you for being here with us today.
-   💬 Candidate: Thank you for having me. I'm excited to discuss the latest developments in AI research.
+1. ❓ Can you tell me about your self?
+   💬 Candidate: Honestly, I do not like these kind of questions.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 0 (Similarity: 0.16)
+
+2. ❓ Why did you choose to apply for this role?
+   💬 Candidate: I don't like this role actually. You can give me any other role. I do not mind.
+   😊 Sentiment: Negative
+   🎯 Relevance Score: 1 (Similarity: 0.53)
+
+3. ❓ What are your key strengths?
+   💬 Candidate: I love working on the gym. Technically I am not good at anything.
    😊 Sentiment: Positive
-   🎯 Relevance Score: 1 (Similarity: 0.57)
-
-2. ❓ Let's start with the basics. How would you explain artificial intelligence to someone who has  no technical background? That's a great question. At its core, artificial intelligence is about
-   💬 Candidate: no technical background? That's a great question. At its core, artificial intelligence is about  creating systems that can perform tasks that typically require human intelligence. These tasks  include learning from experience, understanding natural language, recognizing patterns, include learning from experience, understanding natural language, recognizing patterns,  and making decisions. Interesting. And what are some of the most exciting recent developments in
-   😊 Sentiment: Positive
-   🎯 Relevance Score: 2 (Similarity: 0.74)
-
-3. ❓ and making decisions. Interesting. And what are some of the most exciting recent developments in  the field? Recently, we've seen tremendous progress in large language models and generative AI.
-   💬 Candidate: the field? Recently, we've seen tremendous progress in large language models and generative AI.  These systems can now write essays, create images, and even code software based on simple text prompts. The capabilities have improved dramatically in just the past few years.
-   😊 Sentiment: Positive
-   🎯 Relevance Score: 2 (Similarity: 0.73)
-
-4. ❓ Some people are concerned about the risks of advanced AI. What are your thoughts on that?
-   💬 Candidate: It's a valid concern. Any powerful technology comes with risks. With AI specifically,  we need to think about issues like bias in algorithmic decision making.  Privacy concerns with data collection and their potential for job displacement.  The key is responsible development with proper oversight and regulation.
-   😊 Sentiment: Neutral
-   🎯 Relevance Score: 2 (Similarity: 0.71)
-
-5. ❓ Where do you see AI heading in the next five years?
-   💬 Candidate: I think we'll see much better integration of AI into everyday tools and services.  Healthcare diagnostics will improve. Personalized education will become more accessible  and scientific research will accelerate. But the most exciting developments might be ones we  haven't even imagined yet. That's fascinating. One final question. What advice would you give to
-   😊 Sentiment: Positive
-   🎯 Relevance Score: 1 (Similarity: 0.68)
-
-6. ❓ haven't even imagined yet. That's fascinating. One final question. What advice would you give to  young people interested in working in artificial intelligence?
-   💬 Candidate: Learn the fundamentals of computer science and mathematics. But don't neglect the humanities.  Some of the biggest challenges in AI aren't technical but ethical and social.  We need diverse perspectives to build AI that works well for everyone.
-   😊 Sentiment: Neutral
-   🎯 Relevance Score: 1 (Similarity: 0.58)
-
-7. ❓ We need diverse perspectives to build AI that works well for everyone.  Thank you so much for sharing your insights with us today.  This has been truly informative. It was my pleasure. Thank you for the thoughtful questions.
-   💬 Candidate: This has been truly informative. It was my pleasure. Thank you for the thoughtful questions.
-   😊 Sentiment: Positive
-   🎯 Relevance Score: 1 (Similarity: 0.51)
+   🎯 Relevance Score: 0 (Similarity: 0.35)
 
 📊 Summary
 ----------------------------------------
-✔️ Positive Responses: 5
-✔️ Neutral Responses: 2
-❌ Negative Responses: 0
+✔️ Positive Responses: 1
+✔️ Neutral Responses: 0
+❌ Negative Responses: 2
 
-🏁 Verdict: ✅ SELECTED
+🏁 Verdict: ❌ NOT SELECTED
 
-🏆 Final Rating: 8.1/10
+🏆 Final Rating: 3.6/10

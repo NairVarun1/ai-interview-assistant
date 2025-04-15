@@ -16,7 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from audio.recorder import record_meeting_audio
-from utils.annotator import diarize_and_transcribe
+from utils.annotator import transcribe_audio
 from utils.reportGenerator import analyse_annotated_transcript, generate_report
 from dotenv import load_dotenv
 import threading
@@ -191,7 +191,7 @@ def join_meeting(link):
         print("🛑 Meeting ended, audio thread stopped.")
 
         if audio_file_path:
-            diarize_and_transcribe(audio_file_path)
+            transcribe_audio(audio_file_path)
             print("📄 Annotated transcript saved.")
 
             # Path to the annotated transcript
