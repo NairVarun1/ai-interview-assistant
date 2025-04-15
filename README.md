@@ -61,14 +61,26 @@ The **AI Interview Assistant** automates the interview process by:
 
 ---
 
-## 🔮 AI + Analysis Pipeline
-
 ### Whisper Transcription
-
-```python
 import whisper
 model = whisper.load_model("base", device="cpu")
 segments = model.transcribe("audio.wav")
+
+### Pyannote Diarization
+from pyannote.audio import Pipeline
+pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=HUGGINGFACE_TOKEN)
+
+### Sentiment Analysis
+from transformers import pipeline
+sentiment_pipeline = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")
+
+### Relevance Check
+from sentence_transformers import SentenceTransformer, util
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+### Summarization
+from transformers import pipeline
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 ### 🛠️ Full Setup Guide for AI Interview Assistant (macOS)
 
