@@ -110,3 +110,6 @@ def transcribe_audio(audio_path):
         print(f"\n✅ Annotated transcript saved to: {transcript_path}\n")
         print(annotated_text)
         return transcript_path
+
+if __name__=="__main__":
+    transcribe_audio("recordings/meeting_audio_20250415_223508.wav")

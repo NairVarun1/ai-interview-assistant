@@ -8,4 +8,5 @@ Interviewer: Can you describe a time when you showed a challenging problem?
 Candidate: I have not faced a lot of challenges.
 Interviewer: How do you deal with tight deadlines?
 Candidate: I like to prioritize my work and work on the things that need my focus the most.
-Interviewer: Thank you. Welcome.
+Candidate: Thank you.
+Candidate: Welcome.
