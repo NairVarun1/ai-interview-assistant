@@ -1,12 +1,8 @@
 Candidate Report – AI Interview Assistant
 ==================================================
-📅 Date: 2025-04-14
-🕒 Time: 10:29
+📅 Date: 2025-04-15
+🕒 Time: 11:19
 👤
-=======
-📅 Date: 2025-04-13
-🕒 Time: 12:41
-👤 Candidate: John Doe
 Questions Answered: 10
 
 1. ❓ Hi, can you tell me a bit about yourself?
@@ -15,9 +11,6 @@ Questions Answered: 10
    🎯 Relevance Score: 0 (Similarity: 0.09)
 
 2. ❓ Why did you choose to apply for this role?
-   💬 Candidate: I needed a job, and this one happened to be hiring. I hate working actually.
-   😊 Sentiment: Negative
-   🎯 Relevance Score: 0 (Similarity: 0.37)
    💬 Candidate: I needed a job, and this one happened to be hiring.
    😊 Sentiment: Neutral
    🎯 Relevance Score: 1 (Similarity: 0.45)
@@ -62,19 +55,26 @@ Questions Answered: 10
    😊 Sentiment: Neutral
    🎯 Relevance Score: 0 (Similarity: 0.33)
 
+🗣️ Communication Skill Analysis
+----------------------------------------
+📖 Clarity Score (Flesch Reading Ease): 64.47 / 100
+💪 Confidence Score (Avg Sentiment Certainty): 0.72 / 1
+
 📊 Summary
 ----------------------------------------
 ✔️ Positive Responses: 3
-✔️ Neutral Responses: 3
-❌ Negative Responses: 4
-
-🏁 Verdict: ❌ NOT SELECTED (Too many negative answers)
-
-🏆 Final Rating: 3.9/10
-=======
 ✔️ Neutral Responses: 4
 ❌ Negative Responses: 3
 
-🏁 Verdict: ❌ NOT SELECTED (Too many negative answers)
 
-🏆 Final Rating: 4.3/10
+🏁 Verdict: ❌ NOT SELECTED
+
+🏆 Final Rating: 3.9/10
+
+💡 Pros
+----------------------------------------
+• I’m very good at adapting quickly, especially when under pressure. I regularly read tech blogs, watch YouTube tutorials, and take online courses. Real-world projects help me learn faster.
+
+⚠️ Cons
+----------------------------------------
+• "I don’t really enjoy working with others — too many opinions," he says. "I prefer working alone. Sure. In my last project, the system would crash frequently"
